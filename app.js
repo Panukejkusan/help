@@ -3,26 +3,10 @@ const { array } = require("yargs");
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');  
 require("dotenv").config();
-
-
-const annoucmentList = [{
-    id: 0,
-    title: "lorem",
-    body: "ipsum",
-    author: "Janusz",
-    category: "Książki",
-    tags: [
-      "lorem",
-      "ipsum",
-      "książka"
-    ],
-    price: 5900
-}];
-
-
 app.use(express.json());
-
 const client = new MongoClient (process.env.CONNECTION_STRING, { serverApi: ServerApiVersion.v1 });
+
+
 
 async function main() {
   client.connect()
@@ -32,87 +16,83 @@ async function main() {
   const tasksCollection = database.collection("tasks");
 
 
-  app.get('/heartbeat',  (req, res) => {
+  app.get('/heartbeat', async (req, res) => {
     const myDate = new Date().toDateString();
     const myTime = new Date().toTimeString();
-    res.send(`Aktualna data i godzina: ${myDate} ${myTime}`);
+    try {
+    await res.send(`Aktualna data i godzina: ${myDate} ${myTime}`);
+    } catch {
+      res.statusCode = 400;
+      res.send("coś poszło nie tak kolego");
+    }
   });
   
-  app.post('/add', (req, res) => {
-    const id = annoucmentList[annoucmentList.length - 1].id + 1;
+  app.post('/add', async (req, res) => {
     const title = req.body.title;
     const body = req.body.body;
     const author = req.body.author;
     const category = req.body.category;
     const tags = req.body.tags;
     const price = req.body.price;
-    const myAnnoucment = {id, title, body, author, category, tags, price};
-    const errorArray = [];
-  
-      // if (title && title.length >= 100 ) {
-      //   errorArray.push('title');
-      //   // sendErrorResponse('title');
-      // }
-  
-      // if (errorArray.length > 0) {
-      //   res.statusCode = 400;
-      //   res.send("coś wpisałeś nie tak kolego");
-      // }
-      if (title.length >= 100 ||
-         body.length >= 300 ||
-         author.length >= 20 ||
-         !isCategoryValid(category) ||
-         tags.length >= 4 ||
-         isNaN(price)
-        ) {
-        res.statusCode = 400;
-        res.send("coś wpisałeś nie tak kolego");
-        } else {
-      annoucmentList.push(myAnnoucment);
-      tasksCollection.insertOne(myAnnoucment);
-      res.json(myAnnoucment)};
-      
+    if (title.length >= 100 ||
+      body.length >= 300 ||
+      author.length >= 20 ||
+      !isCategoryValid(category) ||
+      tags.length >= 4 ||
+      isNaN(price)
+     ) {
+     res.statusCode = 400;
+     res.send("coś wpisałeś nie tak kolego");
+     } else {
+    try {
+    const myTask = await tasksCollection.insertOne({title, body, author, category, tags, price});
+    res.send("pomyślnie dodano ogłoszenie kolego")}
+    catch {
+      res.statusCode = 400;
+      res.send("coś wpisałeś nie tak kolego");
+    }};
   });
   
   
   
-  app.get('/get/:id', function (req, res) {
-    const {id} = req.params;
-    const chosenAnnoucment = annoucmentList[id];
-    if(isNaN(id) 
-      // || id != annoucmentList <---- ma być sprawdzenie czy id występuje na liście ogłoszeń
-    ) {
-      res.statusCode = 400;
-      res.send("coś nie pykło kolego");
-    } else {
-      res.format({
-          'text/plain': function () {
-            res.send(JSON.stringify(chosenAnnoucment));
-          },
-        
-          'text/html': function () {
-            res.send(`<!DOCTYPE html>
-            <html>
-            <h1>${JSON.stringify(chosenAnnoucment.title)}</h1><br>
-            <h3>${JSON.stringify(chosenAnnoucment.body)}</h3><br>
-            <h2>${JSON.stringify(chosenAnnoucment.author)}</h2><br>
-            <h3>${JSON.stringify(chosenAnnoucment.category)}</h3><br>
-            <h3>${JSON.stringify(chosenAnnoucment.tags[0])}
-            ${JSON.stringify(chosenAnnoucment.tags[1])}
-            ${JSON.stringify(chosenAnnoucment.tags[2])}</h3><br>
-            <h2>${JSON.stringify(chosenAnnoucment.price)}</h2>
-            </html>
-            `);
-          },
-        
-          'application/json': function () {
-            res.send(chosenAnnoucment);
-          },
-          // default: function (isNaN(id)) {
-          //   // log the request and respond with 406
-          //   res.status(406).send('Not Acceptable')
-          // }
-        })};
+  app.get('/get/:id', async (req, res) => {
+    const id = {_id: new ObjectId(req.params)};
+    
+      //id != annoucmentList <---- ma być sprawdzenie czy id występuje na liście ogłoszeń
+     try {
+      const chosenAnnoucment = await tasksCollection.findOne(id);
+      await res.format({
+            'text/plain': function () {
+              res.send(JSON.stringify(chosenAnnoucment));
+            },
+          
+            'text/html': function () {
+              res.send(`<!DOCTYPE html>
+              <html>
+              <h1>${JSON.stringify(chosenAnnoucment.title)}</h1><br>
+              <h3>${JSON.stringify(chosenAnnoucment.body)}</h3><br>
+              <h2>${JSON.stringify(chosenAnnoucment.author)}</h2><br>
+              <h3>${JSON.stringify(chosenAnnoucment.category)}</h3><br>
+              <h3>${JSON.stringify(chosenAnnoucment.tags[0])}
+              ${JSON.stringify(chosenAnnoucment.tags[1])}
+              ${JSON.stringify(chosenAnnoucment.tags[2])}</h3><br>
+              <h2>${JSON.stringify(chosenAnnoucment.price)}</h2>
+              </html>
+              `);
+            },
+          
+            'application/json': function () {
+              res.send(chosenAnnoucment);
+            },
+            // default: function (isNaN(id)) {
+            //   // log the request and respond with 406
+            //   res.status(406).send('Not Acceptable')
+            // }
+          })
+        } catch {
+          res.statusCode = 400;
+          res.send("coś nie pykło kolego");
+        }; 
   });
   
   app.get('/all', async (req, res) => {
@@ -121,68 +101,69 @@ async function main() {
       res.json(list);
     } catch (error) {
       res.statusCode = 400;
-      res.send(`nie tak kasztanie: ${JSON.stringify(error)}`);
+      res.send(`nie tak kolego: ${JSON.stringify(error)}`);
     }
     
   });
   
   app.delete('/delete/:id', async (req, res) => {
-    // let {id} = req.params;
-    let myQuery = {id: Number(req.params)};
-    // annoucmentList.splice(id, 1);
-    // if (isNaN(id)) 
-    //   {res.statusCode = 400;
-    //   res.send("coś wpisałeś nie tak kolego");} 
-    // else 
+    let id = {_id: new ObjectId(req.params)};
+    // let exists = (_id) => _id === id;
+    // if (tasksCollection.some(task => task.id !== id)) {
+    //   res.statusCode = 400;
+    //   res.send("nie znaleziono takiego id");
+    // } else 
       try {
-        await tasksCollection.deleteOne(myQuery); //TODO usuwa pierwsze ogłoszenie z listy a ma usuwać ogłoszenie z wybranym id
+        await tasksCollection.deleteOne(id);
         res.statusCode = 204;
-        res.send();
+        res.send("pomyślnie usunięto ogłoszenie kolego"); //TODO  nie wyświetla wiadomośći idk why
         } 
       catch (e) {
         res.statusCode = 400;
-        res.send("coś wpisałeś nie tak kolego");
+        res.send("coś poszło nie tak kolego");
       } 
-  });
+  }); // działa ale pownien jakimś błędem rzucić w przypadku usnięcia taska który byl już usunięty, ponadto przydałoby się gdyby sprawdzał czy jest takie id zanim usunie taska
   
-  app.get('/modify/:id', function (req, res) {
-    const {id} = req.params;
-    const chosenAnnoucment = annoucmentList[id];
-    if (isNaN(id)) {
-      res.statusCode = 400;
-      res.send("coś wpisałeś nie tak kolego");
-    } else {
+  app.get('/modify/:id', async (req, res) => {
+    let id = {_id: new ObjectId(req.params)};
+    try {
+    let chosenTask = await tasksCollection.findOne(id);
     res.statusCode = 200; // dobry status??
-    res.json(chosenAnnoucment);
+    res.json(chosenTask);
+    } catch (error) {
+      res.statusCode = 400;
+      res.send("coś poszło nie tak kolego");
     }
   });
   
-  app.post('/modify/:id', (req, res) => {
-    const {id} = req.params;
-    annoucmentList[id].price = req.body.price;
-    annoucmentList[id].body = req.body.body;
-    annoucmentList[id].category = req.body.category;
-    annoucmentList[id].tags = req.body.tags;
-    annoucmentList[id].title = req.body.title;
-    if (isNaN(id)) {
+  app.post('/modify/:id', async (req, res) => {
+    let id = {_id: new ObjectId(req.params)};
+    try {
+    const chosenAnnoucment = await tasksCollection.findOne(id);
+    chosenAnnoucment.price = req.body.price;
+    chosenAnnoucment.body = req.body.body;
+    chosenAnnoucment.category = req.body.category;
+    chosenAnnoucment.tags = req.body.tags;
+    chosenAnnoucment.title = req.body.title;
+    res.statusCode = 200; // dobry status??
+    res.redirect('/all');
+    } catch {
       res.statusCode = 400;
       res.send("coś wpisałeś nie tak kolego");
-    } else {
-      res.statusCode = 200; // dobry status??
-      res.redirect('/all');
-    }
+    } 
   });
   
-  app.get('/search', (req, res) => {
+  app.get('/search/', async (req, res) => {
     const searchResults = [];
-    const fieldName = 'title'
-    for (let i = 0; i < annoucmentList.length; i++){
-      if (annoucmentList[i][fieldName].includes(req.body.title)){
-        searchResults.push(annoucmentList[i]);
-      }
+    const myQuery = {"title": req.body.title};
+    try {
+      const filteredTasks = await tasksCollection.find(myQuery).toArray(); 
+      res.json(filteredTasks); //wyświetla pusty array tylko nie wiadomo dlaczego
+    } catch {
+      res.statusCode = 400;
+      res.send("coś poszło nie tak kolego");
     }
-    res.send(searchResults);
-  })
+  });
 
 
   })
@@ -200,13 +181,7 @@ main()
 .catch(console.error)
 .finally(() => client.close());
 
-function sendErrorResponse(propertyName) {
-  res.statusCode = 400;
-  res.send(`wpisałeś ${propertyName} nie tak kasztanie`);
-}
-
 function isCategoryValid(myCategory){
-  console.log(myCategory, myCategory === "Sport")
   if (myCategory === "Książki" || 
       myCategory === "Sport" ||
       myCategory === "Narzędzia") {
@@ -219,11 +194,3 @@ function isCategoryValid(myCategory){
 
 
 app.listen(4700, console.log('server started'));
-
-// echo "# help" >> README.md
-// git init
-// git add README.md
-// git commit -m "first commit"
-// git branch -M main
-// git remote add origin https://github.com/Panukejkusan/help.git
-// git push -u origin main
