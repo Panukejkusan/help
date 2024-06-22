@@ -1,0 +1,239 @@
+{
+	"info": {
+		"_postman_id": "e3e4b9ac-99c2-40e0-af53-6cc7b5be1104",
+		"name": "EXAM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25582723"
+	},
+	"item": [
+		{
+			"name": "02 DATE",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/heartbeat",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"heartbeat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 ADD",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"To jest tytuł mojego ogłoszenia01234561234567890123456789012345678901234567890\",\r\n    \"body\": \"To jest moje ogłoszenie!\",\r\n    \"author\": \"Anonim\",\r\n    \"category\": \"Sport\",\r\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"],\r\n    \"price\": 1234\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/add",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 FORMAT",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "text/plain",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "text/html",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/get/6670638764fd29a149976b80",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"get",
+						"6670638764fd29a149976b80"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 ALL",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/all",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/delete/666f3b95ebab8a93e1fd9e9f",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"delete",
+						"666f3b95ebab8a93e1fd9e9f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 MODIFY",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/modify/666cb5db335a83b9b39ab446",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"modify",
+						"666cb5db335a83b9b39ab446"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 MODIFY",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"habiabiasdasd\",\r\n    \"body\": \"kebabi\",\r\n    \"author\": \"Anoniasdasdm\",\r\n    \"category\": \"Jedzenie\",\r\n    \"tags\": [\r\n        \"tag1\",\r\n        \"tag2\",\r\n        \"tag3\"\r\n    ],\r\n    \"price\": 11111110\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/modify/666f3b86ebab8a93e1fd9e9b",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"modify",
+						"666f3b86ebab8a93e1fd9e9b"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 SEARCH",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"title\": \"To jest\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}:{{port}}/search",
+					"host": [
+						"{{baseURL}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"search"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
